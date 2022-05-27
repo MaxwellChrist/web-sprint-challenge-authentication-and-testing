@@ -55,7 +55,7 @@ router.post('/login', missingUsernameOrPassword, usernameExistsOrPasswordInvalid
         const token = generateToken(result)
         res.json({ message: `welcome, ${result.username}`, token })
       } else {
-        res.json({ message: "invalid credentials" })
+        res.status(401).json({ message: "invalid credentials" })
         // 4- On FAILED login due to `password` being incorrect,
         // the response body should include a string exactly as follows: "invalid credentials".
       }

@@ -5,7 +5,7 @@ const usernameExistsOrPasswordInvalid = username = async (req, res, next) => {
    const checker = await Users.findUser({username})
    console.log(checker)
    if (checker.length === 0) {
-        res.json({ message: "invalid credentials"})
+        res.status(401).json({ message: "invalid credentials"})
         return
    } else {
         next()
