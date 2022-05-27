@@ -16,9 +16,6 @@ router.post('/register', missingUsernameOrPassword, alreadyTakeUsername, (req, r
   .then(resultSuccess => {
     res.json(resultSuccess)
   })
-  // .catch(err => {
-  //   res.status(500).json({ message: "Cannot register at this time" })
-  // })
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -60,9 +57,6 @@ router.post('/login', missingUsernameOrPassword, usernameExistsOrPasswordInvalid
         // the response body should include a string exactly as follows: "invalid credentials".
       }
     })
-    // .catch(err => {
-    //   res.status(500).json({ message: "Cannot login at this time" })
-    // })
   })
 
   /*

@@ -90,12 +90,63 @@ describe('testing API endpoints', () => {
     result = await request(server).post('/api/auth/register').send({ username: 'bbb', password: '222'})
     expect(result.status).toBe(200)
     expect(result.body).toMatchObject({ id: 1, username: 'bbb'})
-    result = await request(server).post('/api/auth/register').send({ username: 'bbb', password: ''})
+    result = await request(server).post('/api/auth/login').send({ username: 'bbb', password: ''})
     expect(result.status).toBe(400)
     expect(result.body.message).not.toBe("welcome, aaa",)
     expect(result.body.message).toBe("username and password required")
   })
-  test('#8 - POST /api/auth/login - checking usernameExistsOrPasswordInvalid middleware', async () => {
-
+  test('#8 - POST /api/auth/login - checking usernameExistsOrPasswordInvalid middleware - username', async () => {
+    let result
+    result = await request(server).post('/api/auth/register').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body).toMatchObject({ id: 1, username: 'aaa'})
+    result = await request(server).post('/api/auth/login').send({ username: 'bbb', password: '111'})
+    expect(result.status).toBe(401)
+    expect(result.body.message).not.toBe("welcome, aaa",)
+    expect(result.body.message).toBe("invalid credentials")
+  })
+  test('#9 - POST /api/auth/login - checking usernameExistsOrPasswordInvalid middleware - password', async () => {
+    let result
+    result = await request(server).post('/api/auth/register').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body).toMatchObject({ id: 1, username: 'aaa'})
+    result = await request(server).post('/api/auth/login').send({ username: 'aaa', password: '222'})
+    let input = await db('users').where('username', 'aaa').first()
+    expect(bcrypt.compareSync('222', input.password)).not.toBeTruthy()
+    expect(result.status).toBe(401)
+    expect(result.body.message).not.toBe("welcome, aaa",)
+    expect(result.body.message).toBe("invalid credentials")
+  })
+  test('#10 - GET /api/jokes - basic check to see if post request can be made', async () => {
+    let result
+    result = await request(server).post('/api/auth/register').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body).toMatchObject({ id: 1, username: 'aaa'})
+    result = await request(server).post('/api/auth/login').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body.message).toBe("welcome, aaa",)
+    expect(result.body.token).toBeDefined()
+    result = await request(server).get('/api/jokes').set('Authorization', result.body.token)
+    expect(result.status).toBe(200)
+    expect(result.body).toHaveLength(3)
+  })
+  test('#11 - GET /api/jokes - checking restricted middleware - missing token', async () => {
+    let result
+    result = await request(server).get('/api/jokes')
+    expect(result.status).toBe(401)
+    expect(result.body.message).toBe("token required")
+  })
+  test('#12 - GET /api/jokes - checking restricted middleware - invalid token', async () => {
+    let result
+    result = await request(server).post('/api/auth/register').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body).toMatchObject({ id: 1, username: 'aaa'})
+    result = await request(server).post('/api/auth/login').send({ username: 'aaa', password: '111'})
+    expect(result.status).toBe(200)
+    expect(result.body.message).toBe("welcome, aaa",)
+    expect(result.body.token).toBeDefined()
+    result = await request(server).get('/api/jokes').set('Authorization', result.body.token + 1)
+    expect(result.status).toBe(401)
+    expect(result.body.message).toBe("token invalid")
   })
 })
