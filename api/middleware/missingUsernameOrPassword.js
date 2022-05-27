@@ -10,8 +10,6 @@ const missingUsernameOrPassword = (req, res, next) => {
     } else {
       next()
     }
-    // 3- On FAILED registration due to `username` or `password` missing from the request body,
-    // the response body should include a string exactly as follows: "username and password required".
   }
 
 module.exports = missingUsernameOrPassword

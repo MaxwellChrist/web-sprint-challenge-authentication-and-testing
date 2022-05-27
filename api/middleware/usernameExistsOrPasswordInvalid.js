@@ -10,8 +10,6 @@ const usernameExistsOrPasswordInvalid = username = async (req, res, next) => {
    } else {
         next()
    }
-    // 4- On FAILED login due to `username` not existing in the db
-    // the response body should include a string exactly as follows: "invalid credentials".
 }
 
 module.exports = usernameExistsOrPasswordInvalid
