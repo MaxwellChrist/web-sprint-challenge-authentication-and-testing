@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 const Users = require('./auth-model')
 const { SECRET } = require('../../secret')
 
-router.post('/register', (req, res, next) => {
+router.post('/register', (req, res) => {
   let result = req.body;
   const hashed = bcrypt.hashSync(req.body.password, 8);
   result.password = hashed
@@ -49,6 +49,7 @@ router.post('/login', (req, res) => {
   let { username, password } = req.body
   Users.findUser({username})
     .then(([result]) => {
+      console.log(result)
       if(result && bcrypt.compareSync(password, result.password)) {
         const token = generateToken(result)
         res.json({ message: `welcome, ${result.username}`, token })
