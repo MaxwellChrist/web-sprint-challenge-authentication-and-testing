@@ -2,6 +2,7 @@
 const request = require('supertest');
 const server = require('./server')
 const db = require('../data/dbConfig')
+const Users = require('./api/auth/auth-model')
 
 const user1 = { username: 'aaa', password: 'fff'}
 const user2 = { username: 'bbb', password: 'ggg'}
@@ -23,4 +24,11 @@ test('sanity', () => {
 
 test('running on testing environment', () => {
   expect(process.env.NODE_ENV).toBe("testing")
+})
+
+describe('testing API endpoints', () => {
+  test('#1 POST /api/auth/register', async () => {
+    const result = await Users.
+
+  })
 })

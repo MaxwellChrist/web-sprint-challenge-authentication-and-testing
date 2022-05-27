@@ -8,8 +8,8 @@ function findUserById(id) {
     return db('users').where('id', id).first()
 }
 
-async function addUser(hobbit) {
-    return db('users').insert(hobbit)
+async function addUser(item) {
+    return db('users').insert(item)
     .then(result => findUserById(result[0]));
 }
 
