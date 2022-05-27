@@ -16,10 +16,9 @@ router.post('/register', missingUsernameOrPassword, alreadyTakeUsername, (req, r
   .then(resultSuccess => {
     res.json(resultSuccess)
   })
-  .catch(err => {
-    res.status(500).json({ message: "Cannot register at this time" })
-  })
-
+  // .catch(err => {
+  //   res.status(500).json({ message: "Cannot register at this time" })
+  // })
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -52,19 +51,18 @@ router.post('/login', missingUsernameOrPassword, usernameExistsOrPasswordInvalid
   let { username, password } = req.body
   Users.findUser({username})
     .then(([result]) => {
-      // console.log(result)
       if(result && bcrypt.compareSync(password, result.password)) {
         const token = generateToken(result)
         res.json({ message: `welcome, ${result.username}`, token })
       } else {
-        res.status(400).json({ message: "invalid credentials" })
+        res.json({ message: "invalid credentials" })
         // 4- On FAILED login due to `password` being incorrect,
         // the response body should include a string exactly as follows: "invalid credentials".
       }
     })
-    .catch(err => {
-      res.status(500).json({ message: "Cannot login at this time" })
-    })
+    // .catch(err => {
+    //   res.status(500).json({ message: "Cannot login at this time" })
+    // })
   })
 
   /*
