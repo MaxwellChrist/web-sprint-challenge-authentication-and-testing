@@ -1,7 +1,22 @@
 const router = require('express').Router();
+const restricted = require('../middleware/restricted')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const Users = require('./auth-model')
+const { SECRET } = require('../../secret')
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
+router.post('/register', (req, res, next) => {
+  let result = req.body;
+  const hashed = bcrypt.hashSync(req.body.password, 8);
+  result.password = hashed
+  Users.addUser(result)
+  .then(resultSuccess => {
+    res.json(resultSuccess)
+  })
+  .catch(err => {
+    res.status(500).json({ message: "Cannot register at this time" })
+  })
+
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -30,7 +45,22 @@ router.post('/register', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+
+  let { username, password } = req.body
+  Users.findUser({username})
+    .then(([result]) => {
+      if(result && bcrypt.compareSync(password, result.password)) {
+        const token = generateToken(result)
+        res.json({ message: `welcome, ${result.username}`, token })
+      } else {
+        res.status(400).json({ message: "invalid credentials" })
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ message: "Cannot login at this time" })
+    })
+  })
+
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -54,6 +84,14 @@ router.post('/login', (req, res) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
-});
+
+function generateToken(result) {
+  const payload = {
+    subject: result.id,
+    username: result.username
+  }
+  const options = { expiresIn: '1d' }
+  return jwt.sign(payload, SECRET, options)
+}
 
 module.exports = router;
