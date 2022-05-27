@@ -1,10 +1,10 @@
 const { SECRET } = require('../../secret')
 const jwt = require('jsonwebtoken')
-const Users = require('../auth/auth-model')
 
 module.exports = async (req, res, next) => {
   if (req.headers.authorization == null) {
     res.status(401).json({ message: "token required" })
+    return
   }
 
   try {
@@ -12,9 +12,9 @@ module.exports = async (req, res, next) => {
     next()
   } catch(err) {
     res.status(401).json({ message: "token invalid" })
+    return
   }
-}
-  /*
+    /*
     IMPLEMENT
 
     1- On valid token in the Authorization header, call next.
@@ -25,3 +25,4 @@ module.exports = async (req, res, next) => {
     3- On invalid or expired token in the Authorization header,
       the response body should include a string exactly as follows: "token invalid".
   */
+}

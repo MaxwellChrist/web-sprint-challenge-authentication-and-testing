@@ -4,8 +4,11 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const Users = require('./auth-model')
 const { SECRET } = require('../../secret')
+const missingUsernameOrPassword = require('../middleware/missingUsernameOrPassword')
+const alreadyTakeUsername = require('../middleware/alreadyTakeUsername')
+const usernameExistsOrPasswordInvalid = require('../middleware/usernameExistsOrPasswordInvalid')
 
-router.post('/register', (req, res) => {
+router.post('/register', missingUsernameOrPassword, alreadyTakeUsername, (req, res) => {
   let result = req.body;
   const hashed = bcrypt.hashSync(req.body.password, 8);
   result.password = hashed
@@ -44,17 +47,19 @@ router.post('/register', (req, res) => {
   */
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', missingUsernameOrPassword, usernameExistsOrPasswordInvalid, (req, res) => {
 
   let { username, password } = req.body
   Users.findUser({username})
     .then(([result]) => {
-      console.log(result)
+      // console.log(result)
       if(result && bcrypt.compareSync(password, result.password)) {
         const token = generateToken(result)
         res.json({ message: `welcome, ${result.username}`, token })
       } else {
         res.status(400).json({ message: "invalid credentials" })
+        // 4- On FAILED login due to `password` being incorrect,
+        // the response body should include a string exactly as follows: "invalid credentials".
       }
     })
     .catch(err => {
